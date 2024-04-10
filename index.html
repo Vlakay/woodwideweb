@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style/style.css" />
+    <title>Wood Wide Web</title>
+    <script src="woodwideweb.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Define CSS styles here */
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Hide scrollbars */
+            width: 100%;
+            height: 100%;
+            background-color: black; /* Set the background color of the page to black */
+        }
+
+        canvas {
+            display: block;
+            border: 1px solid black; /* Add a border for visualization */
+        }
+    </style>
+</head>
+<body>
+
+      <div class="mushroom"></div>
+        
+<a href="woodwideweb.html"><div class="brain"></a></div>
+
+    <canvas id="myCanvas"></canvas>
+
+
+    <script type="text/javascript">
+        var canvas = document.getElementById('myCanvas');
+        var ctx = canvas.getContext('2d');
+
+        // Function to set canvas dimensions to window inner width and height
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Re-center the animation after resizing
+            centerX = canvas.width / 2;
+            centerY = canvas.height / 2;
+        }
+
+        // Call resizeCanvas function initially and when window is resized
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Probability of a turn
+        var pTurn = 0.005;
+
+        // Probability of a split
+        var pSplit = 0.01;
+
+        // Speed of growth (as a percentage of canvas width)
+        var speed = 0.005 * canvas.width;
+
+        var running = true;
+
+        // Center coordinates for the animation
+        var centerX = canvas.width / 2;
+        var centerY = canvas.height / 2;
+
+        // Point at which the hyphae grows
+        var Growth = function(x, y, angle) {
+            this.x = x;
+            this.y = y;
+            this.angle = angle;
+
+            this.newCurve = function() {
+                this.curve = (Math.random() * 0.4 + 0.1);
+                if (Math.random() < 0.5) {
+                    this.curve *= -1;
+                }
+            };
+            this.newCurve();
+
+            this.update = function() {
+                this.angle += this.curve;
+
+                if (Math.random() < pTurn) {
+                    this.newCurve();
+                }
+
+                var x = this.x + speed * Math.cos(this.angle);
+                var y = this.y + speed * Math.sin(this.angle);
+
+                if (this.x > 0 && this.x <= canvas.width &&
+                    this.y > 0 && this.y <= canvas.height) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(this.x, this.y);
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; // Set the stroke color to transparent white
+                    ctx.stroke();
+                }
+
+                this.x = x;
+                this.y = y;
+            };
+
+        };
+
+        // Initialize growing points
+        var growingPoints = [new Growth(centerX, centerY, -45)];
+
+        function draw() {
+            if (running) {
+                for (var g in growingPoints) {
+                    var p = growingPoints[g];
+                    p.update();
+                    if (Math.random() < pSplit) {
+                        // Create a new growing point and split the line
+                        var newPoint = new Growth(p.x, p.y, p.angle + 45);
+                        newPoint.curve = -p.curve;
+                        growingPoints.push(newPoint);
+                        p.angle -= 45;
+                    }
+                }
+
+                while (Math.random() < (growingPoints.length - 5) / 2000) {
+                    // Pick a random point
+                    var n = Math.floor(Math.random() * growingPoints.length);
+                    growingPoints.splice(n, 1);
+                }
+            }
+            ctx.fillStyle = 'white'; // Set the fill color to white
+            ctx.fillRect(2, 2, 50, 20);
+            ctx.fillStyle = 'black'; // Set the fill color to black
+            ctx.fillText(growingPoints.length, 5, 16);
+        }
+
+        // Spacebar toggles animation
+        function keyPressed(event) {
+            if (event.keyCode === 32) { running = !running; }
+        }
+
+        setInterval(draw, 10); // Call draw function repeatedly
+        document.addEventListener('keydown', keyPressed); // Listen for key presses
+    </script>
+
+<h1>Collapsible Tree Menu</h1>
+<ul class="tree">
+
+  <li>Hello World</li>
+
+  <li>
+    Active Life
+
+    <ul>
+      <li>
+        Disc Golf
+      </li>
+
+      <li>
+        Diving
+
+        <ul>
+          <li>
+            Free Diving
+          </li>
+
+          <li>
+            Scuba Diving
+          </li>
+        </ul>
+      </li>
+
+      <li>
+        Fishing
+      </li>
+
+      <li>
+        Fitness &amp; Instruction
+
+        <ul>
+          <li>
+            Pilates
+          </li>
+
+          <li>
+            Swimming Lessons/Schools
+
+            <ul>
+              <li>
+                Free Diving
+              </li>
+
+              <li>
+                Scuba Diving
+              </li>
+            </ul>
+          </li>
+          <script>$(function() {
+            // Hide all lists except the outermost.
+            $('ul.tree ul').hide();
+          
+            $('.tree li > ul').each(function(i) {
+              var $subUl = $(this);
+              var $parentLi = $subUl.parent('li');
+              var $toggleIcon = '<i class="js-toggle-icon">+</i>';
+          
+              $parentLi.addClass('has-children');
+              
+              $parentLi.prepend( $toggleIcon ).find('.js-toggle-icon').on('click', function() {
+                $(this).text( $(this).text() == '+' ? '-' : '+' );
+                $subUl.slideToggle('fast');
+              });
+            });
+          });
+          </script>
+</body>
+</html>
+ 
